@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  zerodha-mcp:
+    build: .
+    container_name: zerodha-claude-mcp
+    restart: unless-stopped
+    environment:
+      - KITE_API_KEY=${KITE_API_KEY}
+      - KITE_SECRET_KEY=${KITE_SECRET_KEY}
+      - REQUEST_TOKEN=${REQUEST_TOKEN}
+      - ACCESS_TOKEN=${ACCESS_TOKEN}
+      - DEBUG=${DEBUG:-false}
+    # if your MCP server needs to expose ports
+    ports:
+      - "3000:3000"
+    volumes:
+      # Mount the current directory for development
+      - ./:/app
+      - /app/node_modules
+    # Keep container running for MCP communication
+    stdin_open: true
+    tty: true
+    # Optional: Add health check
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3

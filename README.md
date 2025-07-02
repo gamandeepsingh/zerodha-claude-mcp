@@ -17,6 +17,7 @@
 - [🎯 What is MCP?](#-what-is-mcp)
 - [⚡ Quick Start](#-quick-start)
 - [📦 Installation](#-installation)
+- [🐳 Docker Installation](#-docker-installation-alternative)
 - [⚙️ Configuration](#️-configuration)
 - [🔧 Claude Desktop Setup](#-claude-desktop-setup)
 - [📖 API Reference](#-api-reference)
@@ -102,6 +103,112 @@ DEBUG=false
 ```
 
 > 💡 **Pro Tip**: You can get your API credentials from the [Kite Connect Developer Console](https://developers.kite.trade/)
+
+## 🐳 Docker Installation (Alternative)
+
+For a containerized setup, you can use Docker to run the MCP server:
+
+### Prerequisites for Docker
+
+- ✅ **Docker** - [Install Docker](https://docs.docker.com/get-docker/)
+- ✅ **Docker Compose** (optional, for easier management) - Usually included with Docker Desktop
+
+### Option 1: Using Docker Compose (Recommended)
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/gamandeepsingh/zerodha-claude-mcp.git
+   cd zerodha-claude-mcp
+   ```
+
+2. **Create environment file**:
+   ```bash
+   # Create .env file with your credentials
+   cp .env.example .env
+   ```
+
+3. **Edit the .env file** with your Zerodha credentials:
+   ```env
+   KITE_API_KEY=your_api_key_here
+   KITE_SECRET_KEY=your_secret_key_here
+   REQUEST_TOKEN=your_request_token_here
+   ACCESS_TOKEN=your_access_token_here
+   DEBUG=false
+   ```
+
+4. **Build and run with Docker Compose**:
+   ```bash
+   # Build and start the container
+   docker-compose up --build
+   
+   # Run in detached mode (background)
+   docker-compose up -d --build
+   ```
+
+5. **Stop the container**:
+   ```bash
+   docker-compose down
+   ```
+
+### Option 2: Using Docker directly
+
+1. **Build the Docker image**:
+   ```bash
+   docker build -t zerodha-claude-mcp .
+   ```
+
+2. **Run the container**:
+   ```bash
+   docker run -d \
+     --name zerodha-mcp \
+     -e KITE_API_KEY=your_api_key \
+     -e KITE_SECRET_KEY=your_secret_key \
+     -e REQUEST_TOKEN=your_request_token \
+     -e ACCESS_TOKEN=your_access_token \
+     zerodha-claude-mcp
+   ```
+
+### Docker Management Commands
+
+```bash
+# View running containers
+docker ps
+
+# View logs
+docker logs zerodha-mcp
+
+# Stop the container
+docker stop zerodha-mcp
+
+# Remove the container
+docker rm zerodha-mcp
+
+# Remove the image
+docker rmi zerodha-claude-mcp
+```
+
+### Claude Desktop Configuration with Docker
+
+When using Docker, update your `claude_desktop_config.json` to point to the containerized version:
+
+```json
+{
+  "mcpServers": {
+    "zerodha-trading": {
+      "command": "docker",
+      "args": ["exec", "-i", "zerodha-mcp", "bun", "run", "index.ts"],
+      "env": {
+        "KITE_API_KEY": "your_actual_api_key",
+        "KITE_SECRET_KEY": "your_actual_secret_key",
+        "REQUEST_TOKEN": "your_actual_request_token",
+        "ACCESS_TOKEN": "your_actual_access_token"
+      }
+    }
+  }
+}
+```
+
+> ⚠️ **Note**: Make sure your Docker container is running before starting Claude Desktop when using this configuration.
 
 ## ⚙️ Configuration
 
@@ -298,14 +405,17 @@ Here are some natural language examples you can use with Claude:
 ### Project Structure
 
 ```
-zerodha-trade-mcp/
-├── 📄 index.ts          # MCP server entry point
-├── 📄 trade.ts          # Trading logic and API calls  
-├── 📄 package.json      # Dependencies and scripts
-├── 📄 tsconfig.json     # TypeScript configuration
-├── 📄 .env              # Environment variables
-├── 📄 README.md         # Documentation
-└── 📄 bun.lock         # Lock file
+zerodha-claude-mcp/
+├── 📄 index.ts              # MCP server entry point
+├── 📄 trade.ts              # Trading logic and API calls  
+├── 📄 package.json          # Dependencies and scripts
+├── 📄 tsconfig.json         # TypeScript configuration
+├── 📄 .env                  # Environment variables
+├── 📄 README.md             # Documentation
+├── 📄 bun.lock             # Lock file
+├── 🐳 Dockerfile           # Docker image configuration
+├── 🐳 docker-compose.yml   # Docker Compose setup
+└── 📄 .dockerignore        # Docker ignore rules
 ```
 
 ### Local Development
